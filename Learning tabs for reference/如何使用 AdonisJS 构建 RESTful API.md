@@ -27,8 +27,9 @@ Make sure you install the required Node.js version which will install the right 
 
 If you have installed and set up Node.js and NPM properly in your local machine following the step from the documentation, you can create a new AdonisJS 5 project by running this command:
 
-    npm init adonis-ts-app@latest adonisjs-test-app
-
+```shell
+npm init adonis-ts-app@latest adonisjs-test-app
+```
 The command will ask for the project structure. Just select API Server and continue with the other default options as shown below:
 
 ![](https://cdn.nlark.com/yuque/0/2022/png/34666301/1671905152108-676e7ee9-e9b2-409e-b27a-1f4f4a1d66d8.png)
@@ -36,10 +37,10 @@ The command will ask for the project structure. Just select API Server and conti
 Screenshot showing the API option to select
 
 Lastly, after installing successfully, open the folder with any text editor and run the following command to start and inspect the project for new changes:
-
-    cd <PROJECT_NAME>
-
-    node ace serve –watch
+```shell
+cd <PROJECT_NAME>
+node ace serve –watch
+```
 
 If everything is successful without errors, open your browser with the generated URL. Here is a screenshot of the welcome page.
 
@@ -57,26 +58,34 @@ Next, we will install and configure AdonisJS Lucid. It's powerful ORM for Adonis
 
 Let's install Lucid using this command:
 
-    npm install @adonisjs/lucid
+```shell
+npm install @adonisjs/lucid
+```
 
 To configure the newly installed package with the project and the newly created database, run this command:
 
-    node ace invoke @adonisjs/lucid
+```shell
+node ace invoke @adonisjs/lucid
+```
 
 The command will present different database options. Select MySQL/MariaDB, and lastly, select `In the Terminal` for the instructions.
 
 Read through the instructions and update your `.env` file accordingly with the right database credentials as shown below:
 
-    DB_CONNECTION=mysql
-    MYSQL_HOST=localhost
-    MYSQL_PORT=3306
-    MYSQL_USER= //DB_USER
-    MYSQL_PASSWORD= //DB_PASSWORD
-    MYSQL_DB_NAME= //DB_NAME
+```env
+DB_CONNECTION=mysql
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER= //DB_USER
+MYSQL_PASSWORD= //DB_PASSWORD
+MYSQL_DB_NAME= //DB_NAME
+```
 
 If you encounter this error – `Client does not support authentication protocol requested by server;` – while testing your Todo API, follow these steps to solve it:
 
-    npm install mysql2
+```shell
+npm install mysql2
+```
 
 Open the `config/database.ts` and update the `client` field to `mysql2`. That should fix the bug and you'll be ready for development and testing.
 
@@ -88,11 +97,15 @@ To set up authentication and authorization, install the Auth package from Adonis
 
 You can install the Auth package using the command below:
 
-    npm install @adonisjs/auth@alpha
+```shell
+npm install @adonisjs/auth@alpha
+```
 
 Next, call the `invoke` command to configure the newly installed Auth package using the following command:
 
-    node ace invoke @adonisjs/auth
+```shell
+node ace invoke @adonisjs/auth
+```
 
 When you call the invoke command, it will take you through a configuration process for the Auth package. Follow the below steps to set up the API Token authentication process for the Todo application:
 
@@ -105,12 +118,11 @@ When you call the invoke command, it will take you through a configuration proce
 After following the steps successfully, you should have 2 migrations generated in your `database/migrations` folder. You open the `xxxx_users.ts` migration to update the information according to your application needs.
 
 Here is a sample of our user's migration for this demo.
+```ts
+import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
-    import BaseSchema from '@ioc:Adonis/Lucid/Schema'
-
-    export default class UsersSchema extends BaseSchema {
-      protected tableName = 'users'
-
+export default class UsersSchema extends BaseSchema {
+	protected tableName = 'users'
       public async up () {
         this.schema.createTable(this.tableName, (table) => {
           table.increments('id').primary()
@@ -121,17 +133,20 @@ Here is a sample of our user's migration for this demo.
           table.timestamps(true)
         })
       }
-
       public async down () {
-        this.schema.dropTable(this.tableName)
+	    this.schema.dropTable(this.tableName)
       }
     }
+```
+
 
 Lastly, we will add the `auth` middleware into the `start/kernel.ts` file. This will always check every request to make sure that it's properly authenticated.
 
-    Server.middleware.registerNamed({
-    auth: 'App/Middleware/Auth',
-    })
+```ts
+Server.middleware.registerNamed({
+	auth: 'App/Middleware/Auth',
+})
+```
 
 After setting the authentication and authorization, we need to create more migrations for the Todo application.
 
@@ -141,35 +156,38 @@ Next, we are going to create the remaining migrations for the Todo model followi
 
 To create a new migration, type in the following command:
 
-    node ace make:migration todos
+```
+node ace make:migration todos
+```
 
 After running the command, open the new file in `database/migrations/xxxx_todos.ts` and paste in the following code.
 
-    import BaseSchema from "@ioc:Adonis/Lucid/Schema";
+```ts
+import BaseSchema from "@ioc:Adonis/Lucid/Schema";
 
-    export default class Todos extends BaseSchema {
-    	protected tableName = "todos";
-        
-    	public async up() {
-            this.schema.createTable(this.tableName, (table) => {
-                table.increments("id");
-                table.string("title", 255).notNullable();
-                table.string("desc", 255).notNullable();
-                table.boolean("done").default(false);
-                table.timestamps(true);
-    		});
-    	}
-        
-    	public async down() {
-    		this.schema.dropTable(this.tableName);
-    	}
+export default class Todos extends BaseSchema {
+    protected tableName = "todos";    
+    public async up() {
+        this.schema.createTable(this.tableName, (table) => {
+            table.increments("id");
+            table.string("title", 255).notNullable();
+            table.string("desc", 255).notNullable();
+            table.boolean("done").default(false);
+            table.timestamps(true);
+	    });
     }
+    public async down() {
+    	this.schema.dropTable(this.tableName);
+    }
+}
+```
 
 For now, we are keeping it simple without defining any database constraints. Lastly, we will run the migrations to generate and create the database tables as specified in the migrations. Make sure to stop the server and start it again before running the migration:
 
-    node ace serve --watch
-    // Then
-    node ace migration:run
+```shell
+node ace serve --watch
+node ace migration:run
+```
 
 You can set up database seeders to generate fake data or [clone my repository](https://github.com/Kaperskyguru/adonisjs-todo-app) since we have configured that already.
 
@@ -257,47 +275,43 @@ The controller will manipulate the Model with the right business logic and serve
 
 In AdonisJS, we can generate controllers using the following command. First, we will generate the Auth controller to handle the business logic for authentication and authorization.
 
-    node ace make:controller Auth
+```shell
+node ace make:controller Auth
+```
 
 Next, open the newly created file in `app/Controllers/Http/AuthController.ts` and paste in the following code:
 
-    import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
-    import User from "App/Models/User";
-    export default class AuthController {
+```ts
+import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import User from "App/Models/User";
+export default class AuthController {
     public async login({ request, auth }: HttpContextContract) {
-
         const email = request.input("email");
         const password = request.input("password");
-        
         const token = await auth.use("api").attempt(email, password, {
             expiresIn: "10 days",
-            });
-            return token.toJSON();
-        }
-        
-        public async register({ request, auth }: HttpContextContract) {
-        
-            const email = request.input("email");
-            const password = request.input("password");
-            const name = request.input("name");
-            
-            /**
-            * Create a new user
-            */
-            
-            const user = new User();
-            user.email = email;
-            user.password = password;
-            user.name = name;
-            await user.save();
-            
-            const token = await auth.use("api").login(user, {
-            	expiresIn: "10 days",
-            });
-            
-            return token.toJSON();
-        }
+        });
+        return token.toJSON();
     }
+    public async register({ request, auth }: HttpContextContract) {
+        const email = request.input("email");
+        const password = request.input("password");
+        const name = request.input("name");
+        /**
+        * Create a new user
+        */
+        const user = new User();
+        user.email = email;
+        user.password = password;
+        user.name = name;
+        await user.save();
+        const token = await auth.use("api").login(user, {
+            expiresIn: "10 days",
+        });
+        return token.toJSON();
+    }
+}
+```
 
 ## Code Walkthrough
 
@@ -305,116 +319,107 @@ Next, open the newly created file in `app/Controllers/Http/AuthController.ts` an
 
 First, we imported the required libraries and files. Secondly, we created two important methods inside the `AuthController` class.
 
-    import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
-    import User from "App/Models/User";
+```ts
+import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import User from "App/Models/User";
+```
 
 ### Step 2: The Login Method
 
 The first method is the Login method which handles the business logic for logging in a user successfully by checking if a particular user with the email and password exists in the database.
 
-    public async login({ request, auth }: HttpContextContract) {
+```ts
+public async login({ request, auth }: HttpContextContract) {
 
-        const email = request.input("email");
-        const password = request.input("password");
-        
-        const token = await auth.use("api").attempt(email, password, {
-        	expiresIn: "10 days",
-        });
-        
-        return token.toJSON();
-    }
+	const email = request.input("email");
+	const password = request.input("password");
+	const token = await auth.use("api").attempt(email, password, {
+		expiresIn: "10 days",
+    });
+    return token.toJSON();
+}
+```
 
 ### Step 3: The Register Method
 
 The second method is the Register method which we use to create a new user in the database. After creating a new user successfully, the register method will automatically log in the user.
 
-    public async register({ request, auth }: HttpContextContract) {
+```js
+public async register({ request, auth }: HttpContextContract) {
 
     const email = request.input("email");
     const password = request.input("password");
     const name = request.input("name");
-
     /**
     * Create a new user
     */
-
     const user = new User();
     user.email = email;
     user.password = password;
     user.name = name;
     await user.save();
-
     const token = await auth.use("api").login(user, {
-    	expiresIn: "10 days",
+        expiresIn: "10 days",
     });
-
     return token.toJSON();
-    }
+}
+```
 
 ### How to Create the Todo Controller
 
 Next, we will create the Todo controller to handle the business logic of the Todo application. Type in the following command to create a `TodoController`:
 
-    node ace make:controller Todo
+```shell
+node ace make:controller Todo
+```
 
 Next, open the `TodosController.ts` file inside `app/Controllers/Http` folder and add the following code:
 
-    import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
-    import Todo from "App/Models/Todo";
+```js
+import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
+import Todo from "App/Models/Todo";
 
-    export default class TodosController {
-
-        public async index({ request}: HttpContextContract)
-        {
+export default class TodosController {
+    public async index({ request }: HttpContextContract) {
         const todos = await Todo.query();
         return todos
-        }
-        
-        public async show({ request, params}: HttpContextContract)
-        {
-            try {
-                const todo = await Todo.find(params.id);
-                if(todo){
-                return todo
-            }
-            } catch (error) {
-            	console.log(error)
-            }
-        }
-        
-        public async update({ auth, request, params}: HttpContextContract)
-        {
+    }
+    public async show({ request, params }: HttpContextContract) {
+        try {
             const todo = await Todo.find(params.id);
-            if (todo) {
-                todo.title = request.input('title');
-                todo.content = request.input('desc');
-                todo.done = request.input('done')
-                
-                if (await todo.save()) {
-                	return todo
-            	}
-            	return; // 422
-            }
-            return; // 401
-        }
-        
-        public async store({ auth request, response}: HttpContextContract)
-        {
-            const user = await auth.authenticate();
-            const todo = new Todo();
-            todo.title = request.input('title');
-            todo.desc = request.input('desc');
-            await todo.save(todo)
-            return todo
-        }
-        
-        public async destroy({response, auth, request, params}: HttpContextContract)
-        {
-            const user = await auth.authenticate();
-            const todo = await Todo.query().where('id', params.id).delete();
-            return response.json({message:"Deleted successfully"})
+            if (todo) return todo
+        } catch (error) {
+            console.log(error)
         }
     }
+    public async update({ auth, request, params }: HttpContextContract) {
+        const todo = await Todo.find(params.id);
+        if (todo) {
+            todo.title = request.input('title');
+            todo.content = request.input('desc');
+            todo.done = request.input('done')
+            if (await todo.save()) {
+                return todo
+            }
+            return; // 422
+        }
+        return; // 401
+    }
+    public async store({ auth request, response }: HttpContextContract) {
+        const user = await auth.authenticate();
+        const todo = new Todo();
+        todo.title = request.input('title');
+        todo.desc = request.input('desc');
+        await todo.save(todo)
+        return todo
+    }
+    public async destroy({ response, auth, request, params }: HttpContextContract) {
+        const user = await auth.authenticate();
+        const todo = await Todo.query().where('id', params.id).delete();
+        return response.json({ message: "Deleted successfully" })
+    }
+}
+```
 
 ## Code Walkthrough
 
@@ -428,71 +433,76 @@ First, we imported the required libraries and files and created the `TodosContro
 
 The first method is the `index` method which returns all the todo lists created by the user. You can also configure the index method to use pagination if the to-do list is too big to return at once.
 
-    public async index({ request}: HttpContextContract)
-    {
-        const todos = await Todo.query();
-        return todos
-    }
+```ts
+public async index({ request}: HttpContextContract){
+    const todos = await Todo.query();
+    return todos
+}
+```
 
 ### Step 3: The Show Method
 
 The second method is the `show` method which you use to retrieve a single to-do list by providing the ID of the Todo in the request.
 
-    public async show({ request, params}: HttpContextContract)
-    {
-        try {
-        	const todo = await Todo.find(params.id);
-            if(todo){
-            	return todo
-            }
-        } catch (error) {
-        	console.log(error)
+```ts
+public async show({ request, params }: HttpContextContract){
+    try {
+        const todo = await Todo.find(params.id);
+        if (todo) {
+            return todo
         }
+    } catch (error) {
+        console.log(error)
     }
+}
+```
 
 ### Step 4: The Update Method
 
 The third method is the `update` method which you use to update the value of each column in the Todo schema. As the name suggests, you can change any specific column in the database by passing the new data in the request.
 
-    public async update({ auth, request, params}: HttpContextContract)
-    {
-        const todo = await Todo.find(params.id);
-        if (todo) {
-            todo.title = request.input('title');
-            todo.content = request.input('desc');
-            todo.done = request.input('done')
-            if (await todo.save()) {
+```ts
+public async update({ auth, request, params }: HttpContextContract){
+    const todo = await Todo.find(params.id);
+    if (todo) {
+        todo.title = request.input('title');
+        todo.content = request.input('desc');
+        todo.done = request.input('done')
+        if (await todo.save()) {
             return todo
         }
         return; // 422
-        }
-        return; // 401
     }
+    return; // 401
+}
+```
 
 ### Step 5: The Store Method
 
 The fourth method is the `store` method which you use to create a new Todo in the database. By calling the method and providing the required information, a new Todo will be created.
 
-    public async store({ auth request, response}: HttpContextContract)
-    {
-        const user = await auth.authenticate();
-        const todo = new Todo();
-        todo.title = request.input('title');
-        todo.desc = request.input('desc');
-        await todo.save(todo)
-        return todo
-    }
+```ts
+public async store({ auth request, response }: HttpContextContract){
+    const user = await auth.authenticate();
+    const todo = new Todo();
+    todo.title = request.input('title');
+    todo.desc = request.input('desc');
+    await todo.save(todo)
+    return todo
+}
+```
 
 ### Step 6: The Destroy Method
 
 Lastly, the fifth method is the `destroy` method. You use this method to delete a single Todo from the database. It requires the ID of the Todo for deletion.
 
-    public async destroy({response, auth, request, params}: HttpContextContract)
-    {
-        const user = await auth.authenticate();
-        const todo = await Todo.query().where('id', params.id).delete();
-        return response.json({message:"Deleted successfully"})
-    }
+```ts
+public async destroy({response, auth, request, params}: HttpContextContract){
+    const user = await auth.authenticate();
+    const todo = await Todo.query().where('id', params.id).delete();
+    return response.json({message:"Deleted successfully"})
+}
+```
 
 So far, we have created the business logic of the Todo API inside the controller and used the model to manipulate the database. You can clone the repository at this point to understand more or follow along.
 
@@ -502,29 +512,33 @@ To expose our business logic to the frontend or users, we need to create differe
 
 To do that, open the `route.ts` file inside the `start` folder and add the following code:
 
-    //......
+```ts
+//......
+
+Route.group(() => {
+
+    Route.post("register", "AuthController.register");
+    Route.post("login", "AuthController.login");
 
     Route.group(() => {
+        Route.get("todos", "TodosController.index");
+        Route.get("todos/:id", "TodosController.show");
+        Route.put("todos/update", "TodosController.update");
+        Route.post("todos", "TodosController.store");
+    }).middleware("auth:api");
 
-        Route.post("register", "AuthController.register");
-        Route.post("login", "AuthController.login");
-        
-            Route.group(() => {
-            Route.get("todos", "TodosController.index");
-            Route.get("todos/:id", "TodosController.show");
-            Route.put("todos/update", "TodosController.update");
-            Route.post("todos", "TodosController.store");
-            }).middleware("auth:api");
-            
-    }).prefix("api");
+}).prefix("api");
 
-    //......
+//......
+```
 
 Now that we have created different endpoints for our Todo API, let's start the server again and test out the Todo API.
 
 When testing your endpoint using any HTTP clients (like [Postman](https://www.postman.com/)), if you encounter any error saying `Cannot find module 'phc-argon2'` just run the following command to install the package:
 
-    npm install phc-argon2
+```shell
+npm install phc-argon2
+```
 
 First, let's test out the Todo API endpoint without authentication and see the error it will generate because we haven't activated the Auth package.
 
