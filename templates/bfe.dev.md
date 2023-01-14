@@ -11,3 +11,5 @@ created_time: "{{date}} {{time}}"
 Time complexity: $O(n)$
 Space complexity: $O(n)$
 
+```ts
+```
