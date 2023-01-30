@@ -41,4 +41,30 @@ function trigget(target,key){
 v3.0
 
 
-## 
+## 非原始值的响应式方案
+
+`Reflect` 是一个全局对象, 使用`.get()`等方法和`Proxy`中的拦截方法完全等同
+
+但是对于这种情况:
+```ts
+const obj = {
+	foo: 1,
+	get value(){
+		return this.foo;
+	}
+};
+const p = new Proxy(obj,{
+	get(target, key){
+		track(target,key);
+		return target[key];//这里获得的是源对象obj而不是代理对象
+	},
+})
+//->修改为
+const p = new Proxy(obj,{
+	get(target, key, receiver){
+		track(target, key);
+		return Reflect.get(target, key, receiver);//这样就能获取到代理对象再访问对应属性了
+	}
+})
+```
+
