@@ -139,6 +139,8 @@ This article focuses on the development of a data life management system based o
 
 
 
+
+
 ### 2.1.2 研究技术
 
 #### 1.2.1 基于React的Next.js 框架在软件开发中的应用
