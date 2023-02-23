@@ -21,7 +21,7 @@ This paper aims to achieve efficient management of personal data by developing a
 
 前端页面采用基于 React 的Next.js框架，搭配 RadixUI 与 TailwindCSS 构建，配合Electron与 React Native有效解决了客户端多端访问问题和页面性能问题。后端采用 Next.js配合轻量级后端express ORM ·sqlite3·进行开发，极大地提高了开发效率。项目开放了用户自建数据库服务并支持webdav 协议，在方便用户管理个人隐私数据同时，也使用户方便的在多端传输数据。
 
-| 功能/Features              | 数据人生管理系统 |
+| 功能/Features              | 云舒 |
 | -------------------------- |:---------------- |
 | 开源/非商业闭源            | ✅               |
 | 数据安全性                 | ✅               |
@@ -100,7 +100,7 @@ Obsidian是一款知识库管理工具，专为个人和团队提供有效组织
 
 #### 总结
 
-| 功能/Features            | 数据人生管理系统 | 语雀 | 石墨文档 | 飞书知识库 | Obsidian |
+| 功能/Features            | 云舒 | 语雀 | 石墨文档 | 飞书知识库 | Obsidian |
 | ------------------------ |:---------------- | ---- | -------- | ---------- | -------- |
 | 开源/非商业闭源          | ✅               | ❌   | ❌       | ❌         | ❌       |
 | 数据安全性               | ✅               | ✅   | ✅       | ✅         | ❌       |
@@ -129,7 +129,7 @@ Notion拥有强大的搜索功能，可以轻松检索内容，并具有良好�
 Affine是一个全新的组织工具，帮助团队更有效地工作。Affine还为团队成员提供了一个直观的界面，使他们可以更方便地访问信息并与其他团队成员合作。该产品还可以与其他第三方工具，如Slack，GitHub等集成，提供更强大的功能。总而言之，Affine是一个有力的团队管理工具，它可以提高团队协作效率，改善工作流程，帮助团队更快地完成任务。[2]
 
 
-| 功能/Features            | 数据人生管理系统 | Notion | Affine |
+| 功能/Features            | 云舒 | Notion | Affine |
 |:------------------------ |:----------------:| ------ | ------ |
 | 开源/非商业闭源          |        ✅        | ❌     | ✅     |
 | 数据安全性               |        ✅        | ❌     | ❌     |
@@ -371,6 +371,50 @@ Electron是一个使用 JavaScript、HTML 和 CSS 构建桌面应用程序的框
 
 ## 2.2 研究方案或设计方案
 
+```mermaid
+graph TD
+    A[个人知识软件云舒]
+    A -->B[网页端]
+    A -->C[桌面端]
+    A -->D[移动端]
+    subgraph frontend
+    fd[前端]
+    fd --> Nuxt
+    Vue --> Nuxt
+    fd --> Unocss
+    fd --> animation
+    fd --> D3.js
+    animation --> AutoAnimate
+    animation --> FramerMotion[FramerMotion]
+    end
+    B -->frontend
+    subgraph backend
+    bd[后端]
+    bd --> Node(Node.js)
+    Node --> Nitro
+    Node --> prisma
+    prisma --> sqlite
+    end
+    B -->backend
+    C -->frontend
+    C -->backend
+    subgraph native
+        Nat[win/mac/linux native API]
+        Nat --> Node.js
+        Node.js --> Electron
+        Electron --> sqlite
+    end
+    C -->native
+
+    D -->frontend
+    subgraph mobile
+        Mob[android/ios native API]
+        Mob --> sqlite
+        Mob --> ReactNative
+    end
+    D -->mobile
+```
+
 ![[Pasted image 20230213033213.png]]
 SSR (server-side rendering)
 
@@ -379,141 +423,6 @@ SSR (server-side rendering)
 分层架构图 
 
 ![[Pasted image 20230213173401.png]]
-
-### 项目网页端基础文件夹结构
-```
-.
-├─ public
-│  └─ favicon.ico
-├─ prisma
-│  └─ schema.prisma
-├─ src
-│  ├─ env.mjs
-│  ├─ pages
-│  │  ├─ _app.tsx
-│  │  ├─ api
-│  │  │  ├─ auth
-│  │  │  │  └─ [...nextauth].ts
-│  │  │  └─ trpc
-│  │  │     └─ [trpc].ts
-│  │  └─ index.tsx
-│  ├─ server
-│  │  ├─ auth.ts
-│  │  ├─ db.ts
-│  │  └─ api
-│  │     ├─ routers
-│  │     │  └─ example.ts
-│  │     ├─ trpc.ts
-│  │     └─ root.ts
-│  ├─ styles
-│  │  └─ globals.css
-│  └─ utils
-│     └─ api.ts
-├─ .env
-├─ .env.example
-├─ .eslintrc.json
-├─ .gitignore
-├─ next-env.d.ts
-├─ next.config.mjs
-├─ package.json
-├─ postcss.config.cjs
-├─ prettier.config.cjs
-├─ README.md
-├─ tailwind.config.cjs
-└─ tsconfig.json
-```
-
-#### `prisma`文件夹
-`prisma` 包含了 `schema.prisma`文件，它被用于配置数据库连接和定义数据结构。数据库的迁移记录文件以及初始化种子脚本也会被放在这个文件夹里。
-
-#### `public`文件夹 
-`public`包含了一些将被托管在服务器上的静态资源。例如文件 `favicon.ico`。
-
-#### `src/env`
-用于环境变量的验证和类型定义
-
-#### `src/pages`
-文件夹 pages 包含了 Next.js 应用的所有页面。根目录下的文件 index.tsx 则是应用程序的首页。文件 _app.tsx 被用于使用 provider 来包裹整个应用程序。
-
-#### `src/pages/api`
-文件夹 api 包含了 Next.js 应用的 API 路由。文件 examples.ts（安装 Primsa 后会出现）包含了一段搭配 Prisma 使用 Next.js API 路由↗ 的示例代码。文件 restricted.ts（安装 Next-Auth 后会出现）则包含了一段受 NextAuth.js↗ 保护的示例路由代码，它同样也使用了 Next.js API 路由↗。
-
-#### `src/pages/api/auth/[...nextauth].ts`
-文件 `[...nextauth].ts` 包含了 NextAuth.js 认证的动态 slug 路由。它被用于处理认证请求。参看 NextAuth.js 用法 来了解更多关于 NextAuth.js 的用法，以及 Next.js 动态路由文档↗ 来了解更多关于 catch-all 和 slug 路由的信息。
-
-#### `src/pages/api/trpc/[trpc].ts`
-文件 `[trpc].ts` 是 tRPC API 的入口。它被用于处理 tRPC 请求。
-
-#### `src/server`
-文件夹 server 被用于清晰划分服务端和客户端代码。
-
-#### `src/server/common`
-文件夹 common 包含了常用的可复用服务端代码。
-
-#### `src/server/common/get-server-auth-session.ts`
-文件 `get-server-auth-session.ts` 被用于在服务端获取 NextAuth.js 的 session。参看 NextAuth.js 用法 来了解更多。
-
-#### `src/server/db/client.ts`
-文件 `client.ts` 被用于初始化一个全局的 Prisma 客户端。
-
-#### `src/server/trpc`
-文件夹 trpc 包含了 tRPC 服务端的代码。
-
-#### `src/server/trpc/context.ts`
-文件 `context.ts` 被用于创建上下文，该上下文会被用于 tRPC 的请求里。
-
-#### `src/server/trpc/trpc.ts`
-文件 `trpc.ts` 被用于导出路由 procedure 的 helper 函数。
-
-#### `src/server/trpc/router`
-文件夹 `router` 包含了 tRPC 的路由。
-
-#### `src/server/trpc/router/_app.ts`
-文件 `_app.ts` 主要用于合并多个 tRPC 路由，并将它统一导出为一个路由，以及其对应的类型定义。
-
-#### `src/server/trpc/router/auth.ts`
-文件 `auth.ts` 包含了一段 tRPC 路由的示例代码，它利用了 `protectedProcedure` 来展示如何用 NextAuth.js 来保护 tRPC 路由。
-
-
-#### `src/styles`
-文件夹 styles 包含了应用的全局样式。
-
-#### `src/types`
-文件夹 types 被用于存储复用的类型或类型声明。
-
-#### `src/types/next-auth.d.ts`
-文件 `next-auth.d.ts` 被用于扩展 `NextAuth` 的默认 session 类型，这里将用户 ID 也添加了进来。
-
-##### `src/utils`
-文件夹 `utils` 被用于存储经常复用的工具函数。
-
-#### `src/utils/trpc.ts`
-文件 `trpc.ts` 是 tRPC 的前端入口。
-
-#### `.env`
-文件 `.env` 被用于保存环境变量。该文件不应该被提交到 git 历史记录里。
-
-#### `.env.example`
-文件 `.env.example` 根据所选库包展示了一个环境变量示例配置。这个文件需要被提交到 git 历史记录里。
-
-#### `.eslintrc.json`
-文件 `.eslintrc.json` 被用于配置 ESLint。
-
-#### `next-env.d.ts`
-文件 `next-env.d.ts` 确保 TypeScript 编译器能够采用 Next.js 的类型。你不应该移除或修改该文件，因为它可以随时发生变化。
-
-#### `next.config.mjs`
-文件 `next.config.mjs` 被用于配置 Next.js。
-
-#### `postcss.config.cjs`
-文件 `postcss.config.cjs` 被用于配置 TailwindCSS 的用法。
-
-#### `prettier.config.cjs`
-文件 `prettier.config.cjs` 被用于配置 Prettier，以使用插件 `prettier-plugin-tailwindcss` 来格式化 Tailwind CSS 的类名。
-
-#### `tsconfig.json`
-文件 `tsconfig.json` 被用于配置 TypeScript。
-
 
 ### 移动端设计结构
 
